@@ -27,4 +27,11 @@ public interface PromotionService {
      * 获取全部有效的销售策略（在活动时间内的）
      */
     List<PromotionVO> getValidPromotion();
+
+    /**
+     * 2023.12
+     * 删除促销策略
+     * @param promotionId 促销策略编号
+     */
+    void deletePromotion(String promotionId);
 }

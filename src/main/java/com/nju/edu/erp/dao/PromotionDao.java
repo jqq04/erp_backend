@@ -60,5 +60,12 @@ public interface PromotionDao {
      */
     List<PromotionPackagePO> getGiftsByPromotionId(String promotionId);
 
+    /**
+     * 2023.12
+     * 根据促销策略编号删除对应策略 (还会删除附带的要求包和赠品包）
+     * @param promotionId 促销策略编号
+     * @return 影响的行数
+     */
+    int deletePromotion(String promotionId);
 
 }

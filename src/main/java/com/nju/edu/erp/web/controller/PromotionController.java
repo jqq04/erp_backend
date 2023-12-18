@@ -49,4 +49,16 @@ public class PromotionController {
     public Response getValidPromotion(){
         return Response.buildSuccess(promotionService.getValidPromotion());
     }
+
+    /**
+     * 2023.12
+     * 删除一个促销策略
+     * @param id 促销策略编号
+     */
+    @GetMapping("/delete")
+    @Authorized(roles = {Role.ADMIN,Role.GM})
+    public Response deletePromotion(@RequestParam String id){
+        promotionService.deletePromotion(id);
+        return  Response.buildSuccess();
+    }
 }
