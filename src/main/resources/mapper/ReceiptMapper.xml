@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nju.edu.erp.dao.ReceiptDao">
+    <insert id="saveSheet" parameterType="ReceiptSheetPO">
+        insert into receipt_sheet (id, supplier, operator, remark, total_amount, state, create_time)
+        values (#{id},#{supplier},#{operator},#{remark},#{totalAmount},#{state}, #{createTime})
+    </insert>
+
+    <insert id="saveList" useGeneratedKeys="true" keyProperty="id">
+        insert into receipt_sheet_content (receipt_sheet_id, account, amount, remark) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.receiptSheetId},#{item.account},#{item.amount},#{item.remark})
+        </foreach>
+    </insert>
+
+    <update id="updateState">
+        update receipt_sheet
+        set state = #{state}
+        where id = #{receiptSheetId}
+    </update>
+
+    <select id="getLatest" resultType="com.nju.edu.erp.model.po.receipt.ReceiptSheetPO">
+        select * from receipt_sheet order by id desc limit 0,1 ;
+    </select>
+
+    <select id="findAll" resultType="com.nju.edu.erp.model.po.receipt.ReceiptSheetPO">
+        select * from receipt_sheet;
+    </select>
+
+    <select id="findAllByState" resultType="com.nju.edu.erp.model.po.receipt.ReceiptSheetPO">
+        select * from receipt_sheet where state = #{state}
+    </select>
+
+    <select id="findOneById" resultType="com.nju.edu.erp.model.po.receipt.ReceiptSheetPO">
+        select * from receipt_sheet where id=#{receiptSheetId}
+    </select>
+
+    <select id="findContentBySheetId" resultType="com.nju.edu.erp.model.po.receipt.ReceiptSheetContentPO">
+        select * from receipt_sheet_content where receipt_sheet_id = #{receiptSheetId}
+    </select>
+
+
+    <resultMap id="ReceiptSheetPO" type="com.nju.edu.erp.model.po.receipt.ReceiptSheetPO">
+        <id column="id" property="id"></id>
+        <result column="supplier" property="supplier"></result>
+        <result column="operator" property="operator"></result>
+        <result column="remark" property="remark"></result>
+        <result column="total_amount" property="totalAmount"></result>
+        <result column="state" property="state"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nju.edu.erp.dao.SaleReturnsSheetDao">
+
+    <select id="getLatest" resultType="com.nju.edu.erp.model.po.saleReturns.SaleReturnsSheetPO">
+        select * from sale_returns_sheet order by id desc limit 0,1 ;
+    </select>
+
+    <insert id="saveSheet">
+        insert into sale_returns_sheet (id, sale_sheet_id, supplier, operator, remark, state, create_time, salesman, returns_amount)
+        values (#{id},#{saleSheetId},#{supplier},#{operator},#{remark}, #{state}, #{createTime}, #{salesman}, #{returnsAmount}) ;
+    </insert>
+
+    <insert id="saveBatchSheetContent" useGeneratedKeys="true" keyProperty="id">
+        insert into sale_returns_sheet_content (sale_returns_sheet_id, pid, quantity, unit_price, returns_price,returns_amount, batch_id,remark) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.saleReturnsSheetId},#{item.pid},#{item.quantity},#{item.unitPrice},#{item.returnsPrice},#{item.returnsAmount},#{item.batchId},#{item.remark})
+        </foreach>
+    </insert>
+
+
+    <select id="findAllSheet" resultType="com.nju.edu.erp.model.po.saleReturns.SaleReturnsSheetPO">
+        select * from sale_returns_sheet;
+    </select>
+
+    <select id="findAllByState" resultType="com.nju.edu.erp.model.po.saleReturns.SaleReturnsSheetPO">
+        select * from sale_returns_sheet where state = #{state}
+    </select>
+
+    <update id="updateSheetState">
+        update sale_returns_sheet
+        set state = #{state}
+        where id = #{sheetId}
+    </update>
+
+    <update id="updateSheetStateOnPrev">
+        update sale_returns_sheet
+        set state = #{state}
+        where id = #{sheetId} and state = #{prev}
+    </update>
+
+    <select id="findSheetById" resultType="com.nju.edu.erp.model.po.saleReturns.SaleReturnsSheetPO">
+        select * from sale_returns_sheet where id = #{sheetId};
+    </select>
+
+    <select id="findContentBySheetId" resultType="com.nju.edu.erp.model.po.saleReturns.SaleReturnsSheetContentPO">
+        select * from sale_returns_sheet_content where sale_returns_sheet_id = #{sheetId};
+    </select>
+
+</mapper>

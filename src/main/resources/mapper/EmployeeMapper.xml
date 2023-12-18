@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nju.edu.erp.dao.EmployeeDao">
+
+    <insert id="saveEmployee" parameterType="com.nju.edu.erp.model.po.EmployeePO">
+        insert into employee (id, name, gender, birthday, phone, role, account)
+        values (#{id}, #{name}, #{gender}, #{birthday}, #{phone}, #{role}, #{account})
+    </insert>
+
+    <insert id="saveEmployeeSalaryInfo" parameterType="com.nju.edu.erp.model.po.EmployeePO">
+        insert into employee_salary_info(id, basic_salary, post_salary, salary_compute_strategy, salary_payment_strategy)
+        values (#{id}, #{basicSalary}, #{postSalary}, #{salaryComputeStrategy}, #{salaryPaymentStrategy})
+    </insert>
+
+    <update id="updateEmployee" parameterType="com.nju.edu.erp.model.po.EmployeePO">
+        update employee
+        <set>
+            <if test="name != null">name = #{name}, </if>
+            <if test="gender != null">gender = #{gender}, </if>
+            <if test="birthday != null">birthday = #{birthday}, </if>
+            <if test="phone != null">phone = #{phone}, </if>
+            <if test="role != null">role = #{role}, </if>
+            <if test="account != null">account = #{account},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateEmployeeSalaryInfo" parameterType="com.nju.edu.erp.model.po.EmployeePO">
+        update employee_salary_info
+        <set>
+            <if test="basicSalary != null">basic_salary = #{basicSalary},</if>
+            <if test="postSalary != null">post_salary = #{postSalary},</if>
+            <if test="salaryComputeStrategy != null">salary_compute_strategy = #{salaryComputeStrategy},</if>
+            <if test="salaryPaymentStrategy != null">salary_payment_strategy = #{salaryPaymentStrategy},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <delete id="deleteEmployeeById">
+        delete from employee where id = #{id}
+    </delete>
+
+    <delete id="deleteEmployeeSalaryInfoById">
+        delete from employee_salary_info where id = #{id}
+    </delete>
+
+    <select id="getEmployeeById" resultType="com.nju.edu.erp.model.po.EmployeePO">
+        select *
+        from employee e, employee_salary_info esi
+        where e.id = #{id} and esi.id = #{id}
+    </select>
+
+    <select id="getEmployeeByName" resultType="com.nju.edu.erp.model.po.EmployeePO">
+        select *
+        from employee e, employee_salary_info esi
+        where e.name = #{name} and esi.id = e.id
+    </select>
+
+    <select id="getEmployeeByRole" resultType="com.nju.edu.erp.model.po.EmployeePO">
+        select e.*, esi.*
+        from employee e, employee_salary_info esi, employee_post_info epi
+        where e.role = #{role} and esi.id = e.id and epi.employee_id = e.id and epi.on_post = true
+    </select>
+
+    <select id="getAllEmployee" resultType="com.nju.edu.erp.model.po.EmployeePO">
+        select e.*, esi.*
+        from employee e, employee_salary_info esi, employee_post_info epi
+        where e.id = esi.id and epi.employee_id = e.id and epi.on_post = true
+    </select>
+
+
+    <select id="getLatest" resultType="com.nju.edu.erp.model.po.EmployeePO">
+        select *
+        from employee e, employee_salary_info esi
+        where e.id = esi.id
+        order by e.id desc limit 0,1
+    </select>
+
+    <select id="findUserByEmployeeId" resultMap="User">
+        select u.* from user u, employee_user eu
+        where #{employeeId} = eu.employee_id and eu.user_id = u.id
+    </select>
+
+    <select id="findEmployeeByUserId" resultType="com.nju.edu.erp.model.po.EmployeePO">
+        select *
+        from employee e, employee_salary_info esi, employee_user eu
+        where e.id = esi.id and #{userId} = eu.user_id and eu.employee_id = e.id
+    </select>
+
+    <insert id="bind">
+        insert into employee_user(employee_id, user_id)
+        values(#{employeeId},#{userId})
+    </insert>
+
+
+    <insert id="setPost">
+        insert into employee_post_info(employee_id, on_post)
+        values(#{employeeId}, #{onPost})
+        on duplicate key
+        update on_post = #{onPost}
+    </insert>
+
+    <select id="isOnPost">
+        select on_post from employee_post_info
+        where employee_id = #{employeeId}
+    </select>
+
+    <insert id="setDefaultFinalBonus">
+        insert into employee_year_end_bonus_info(id,amount)
+        values(#{employeeId},null)
+    </insert>
+
+    <resultMap id="User" type="com.nju.edu.erp.model.po.User">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="password" property="password"></result>
+        <result column="role" property="role"></result>
+    </resultMap>
+</mapper>

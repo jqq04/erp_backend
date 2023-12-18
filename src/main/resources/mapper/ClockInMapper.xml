@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nju.edu.erp.dao.ClockInDao">
+
+    <insert id="makeRecord" parameterType="com.nju.edu.erp.model.po.ClockInRecordPO">
+        insert into clock_in_record(id, employee_id, date, time, has_clock_in)
+        values (#{id}, #{employeeId}, #{date}, #{time}, #{hasClockIn})
+    </insert>
+
+    <update id="clockIn">
+        update clock_in_record
+        <set>
+            time = #{date},
+            has_clock_in = true,
+        </set>
+        where employee_id = #{employeeId} and date = date(#{date})
+    </update>
+
+    <select id="findAllRecordByEmployeeId" resultType="com.nju.edu.erp.model.po.ClockInRecordPO">
+        select * from clock_in_record
+        where employee_id = #{employeeId}
+        order by date desc
+    </select>
+
+    <select id="findRecordByEmployeeIdByDate" resultType="com.nju.edu.erp.model.po.ClockInRecordPO">
+        select * from clock_in_record
+        where employee_id = #{employeeId} and date = date(#{date})
+    </select>
+
+    <select id="findRecordByEmployeeIdByDateRange" resultType="com.nju.edu.erp.model.po.ClockInRecordPO">
+        select * from clock_in_record
+        where employee_id = #{employeeId} and date(#{beginDate}) &lt;= date and date &lt;= date(#{endDate})
+    </select>
+
+    <select id="findAllRecord" resultType="com.nju.edu.erp.model.po.ClockInRecordPO">
+        select * from clock_in_record
+        order by date desc, employee_id asc
+    </select>
+
+    <select id="findRecordByDate" resultType="com.nju.edu.erp.model.po.ClockInRecordPO">
+        select * from clock_in_record
+        where date = date(#{date})
+        order by date desc, employee_id asc
+    </select>
+
+    <select id="getAbsenceDays" resultType="java.lang.Integer">
+        select count(*) from clock_in_record
+        where employee_id = #{employeeId} and date(#{beginDate}) &lt;= date and date &lt;= date(#{endDate}) and has_clock_in = false
+    </select>
+
+    <select id="getAttendanceDays" resultType="java.lang.Integer">
+        select count(*) from clock_in_record
+        where employee_id = #{employeeId} and date(#{beginDate}) &lt;= date and date &lt;= date(#{endDate}) and has_clock_in = true
+    </select>
+</mapper>

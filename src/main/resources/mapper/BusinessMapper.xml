@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nju.edu.erp.dao.BusinessDao">
+
+    <select id='getSaleDetails' resultType="com.nju.edu.erp.model.vo.business.SaleDetailVO">
+        (
+        select "销售" as type, ss.supplier as supplier, ss.salesman as salesman, ss.create_time as date, ssc.pid as product_id, p.name as product_name, p.type as product_type, ssc.quantity as quantity, ssc.unit_price as unit_price, ssc.total_price as total_price
+        from sale_sheet ss, sale_sheet_content ssc, product p
+        where #{beginDate} &lt;= ss.create_time and ss.create_time &lt;= #{endDate} and ss.id = ssc.sale_sheet_id and p.id = ssc.pid
+        union
+        select "销售退货" as type, srs.supplier as supplier, srs.salesman as salesman, srs.create_time as date, srsc.pid as product_id, p.name as product_name, p.type as product_type, srsc.quantity as quantity, srsc.returns_price as unit_price, srsc.returns_amount as total_price
+        from sale_returns_sheet srs, sale_returns_sheet_content srsc, product p
+        where #{beginDate} &lt;= srs.create_time and srs.create_time &lt;= #{endDate} and srs.id = srsc.sale_returns_sheet_id and p.id = srsc.pid
+        )
+        order by date asc, product_id asc;
+    </select>
+
+    <select id='getAllSaleDetails' resultType="com.nju.edu.erp.model.vo.business.SaleDetailVO">
+        (
+        select "销售" as type, ss.supplier as supplier, ss.salesman as salesman, ss.create_time as date, ssc.pid as product_id, p.name as product_name, p.type as product_type, ssc.quantity as quantity, ssc.unit_price as unit_price, ssc.total_price as total_price
+        from sale_sheet ss, sale_sheet_content ssc, product p
+        where ss.id = ssc.sale_sheet_id and p.id = ssc.pid
+        union
+        select "销售退货" as type, srs.supplier as supplier, srs.salesman as salesman, srs.create_time as date, srsc.pid as product_id, p.name as product_name, p.type as product_type, srsc.quantity as quantity, srsc.returns_price as unit_price, srsc.returns_amount as total_price
+        from sale_returns_sheet srs, sale_returns_sheet_content srsc, product p
+        where srs.id = srsc.sale_returns_sheet_id and p.id = srsc.pid
+        )
+        order by date asc, product_id asc;
+    </select>
+
+    <select id="getBusinessSituationItem" resultType="com.nju.edu.erp.model.vo.business.BusinessSituationItem">
+        (
+        <!--寻找销售收入信息-->
+        select '收入' as type, '销售收入' as description, final_amount as amount, discount, create_time as date
+        from sale_sheet
+        where  #{beginDate} &lt;= create_time and create_time &lt;= #{endDate} and state = '审批完成'
+
+        union
+        <!--寻找进货退货收入信息-->
+        select '收入' as type, '进货退货收入' as description, total_amount as amount, null as discount, create_time as date
+        from purchase_returns_sheet
+        where  #{beginDate} &lt;= create_time and create_time &lt;= #{endDate} and state = '审批完成'
+
+        union
+        <!--寻找进货支出-->
+        select '支出' as type, '进货支出' as description, total_amount as amount, null as discount, create_time as date
+        from purchase_sheet
+        where  #{beginDate} &lt;= create_time and create_time &lt;= #{endDate} and state = '审批完成'
+
+        union
+       <!--寻找销售退货支出-->
+        select '支出' as type, '销售退货支出' as description, returns_amount as amount, null as discount, create_time as date
+        from sale_returns_sheet
+        where  #{beginDate} &lt;= create_time and create_time &lt;= #{endDate} and state = '审批完成'
+
+        union
+        <!--寻找薪资支出-->
+        select '支出' as type, '薪资支出' as description, expected_salary as amount, null as discount, create_time as date
+        from salary_sheet
+        where  #{beginDate} &lt;= create_time and create_time &lt;= #{endDate} and state = '审批完成'
+        )
+        order by date asc
+    </select>
+
+    <select id="getAllBusinessSituationItem" resultType="com.nju.edu.erp.model.vo.business.BusinessSituationItem">
+        (
+        <!--寻找销售收入信息-->
+        select '收入' as type, '销售收入' as description, final_amount as amount, discount, create_time as date
+        from sale_sheet
+        where state = '审批完成'
+
+        union
+        <!--寻找进货退货收入信息-->
+        select '收入' as type, '进货退货收入' as description, total_amount as amount, null as discount, create_time as date
+        from purchase_returns_sheet
+        where state = '审批完成'
+
+        union
+        <!--寻找进货支出-->
+        select '支出' as type, '进货支出' as description, total_amount as amount, null as discount, create_time as date
+        from purchase_sheet
+        where state = '审批完成'
+
+        union
+        <!--寻找销售退货支出-->
+        select '支出' as type, '销售退货支出' as description, returns_amount as amount, null as discount, create_time as date
+        from sale_returns_sheet
+        where state = '审批完成'
+
+        union
+        <!--寻找薪资支出-->
+        select '支出' as type, '薪资支出' as description, expected_salary as amount, null as discount, create_time as date
+        from salary_sheet
+        where state = '审批完成'
+        )
+        order by date asc
+    </select>
+
+    <insert id="saveBook" parameterType="com.nju.edu.erp.model.po.business.BookPO">
+        insert into book(id,create_time)
+        values(#{id},#{createTime})
+    </insert>
+
+    <insert id="saveAccountBook">
+        insert into account_book(book_id, id, name, amount) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{bookId}, #{item.id}, #{item.name}, #{item.amount})
+        </foreach>
+    </insert>
+
+    <insert id="saveCustomerBook">
+        insert into customer_book(book_id, id, type, level, name, phone, address, zipcode, email, line_of_credit, receivable, payable) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{bookId}, #{item.id}, #{item.type}, #{item.level}, #{item.name}, #{item.phone}, #{item.address}, #{item.zipcode}, #{item.email}, #{item.lineOfCredit}, #{item.receivable}, #{item.payable})
+        </foreach>
+    </insert>
+
+    <insert id="saveProductBook">
+        insert into product_book(book_id, id, name, category_id, type, quantity, purchase_price, retail_price, recent_pp, recent_rp) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{bookId},#{item.id},#{item.name},#{item.categoryId},#{item.type},#{item.quantity},#{item.purchasePrice},#{item.retailPrice},#{item.recentPp},#{item.recentRp})
+        </foreach>
+    </insert>
+
+    <select id="getLatestBook" resultType="com.nju.edu.erp.model.po.business.BookPO">
+        select * from book order by id desc limit 0,1 ;
+    </select>
+
+    <select id="getAccountBookById" resultType="com.nju.edu.erp.model.po.AccountPO">
+        select * from account_book where book_id = #{bookId}
+    </select>
+
+    <select id="getCustomerBookById" resultType="com.nju.edu.erp.model.po.CustomerPO">
+        select * from customer_book where book_id = #{bookId}
+    </select>
+
+    <select id="getProductBookById" resultType="com.nju.edu.erp.model.po.ProductPO">
+        select * from product_book where book_id = #{bookId}
+    </select>
+
+    <select id="getBookById" resultType="com.nju.edu.erp.model.po.business.BookPO">
+        select * from book where id = #{bookId}
+    </select>
+
+    <select id="getAllBookId" resultType="string">
+        select id from book
+    </select>
+
+</mapper>

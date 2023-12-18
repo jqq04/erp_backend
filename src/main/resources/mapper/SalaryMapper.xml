@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nju.edu.erp.dao.SalaryDao">
+
+    <insert id="saveSheet" parameterType="com.nju.edu.erp.model.po.salary.SalarySheetPO">
+        insert into salary_sheet(id, begin_date, end_date, create_time, employee_id, name, account, attendance_days, absence_days,
+        basic_salary, post_salary, commission, deduct_salary, expected_salary, personal_income_tax, unemployment_insurance, housing_provident_fund, total_tax, final_salary, state)
+        values(#{id},#{beginDate},#{endDate},#{createTime},#{employeeId},#{name},#{account},#{attendanceDays},#{absenceDays},
+        #{basicSalary},#{postSalary},#{commission},#{deductSalary},#{expectedSalary},#{personalIncomeTax},#{unemploymentInsurance},#{housingProvidentFund},#{totalTax},#{finalSalary},#{state});
+    </insert>
+
+    <update id="updateState">
+        update salary_sheet
+        set state = #{state}
+        where id = #{salarySheetId}
+    </update>
+
+    <select id="getLatest" resultType="com.nju.edu.erp.model.po.salary.SalarySheetPO">
+        select * from salary_sheet order by id desc limit 0,1 ;
+    </select>
+
+    <select id="findAll" resultType="com.nju.edu.erp.model.po.salary.SalarySheetPO">
+        select * from salary_sheet
+    </select>
+
+    <select id="findAllByState" resultType="com.nju.edu.erp.model.po.salary.SalarySheetPO">
+        select * from salary_sheet where state = #{state}
+    </select>
+
+    <select id="findOneById" resultType="com.nju.edu.erp.model.po.salary.SalarySheetPO">
+        select * from salary_sheet where id = #{salarySheetId}
+    </select>
+
+    <select id="getPostSalary" resultType="java.math.BigDecimal">
+        select post_salary from post_salary_info where role = #{role}
+    </select>
+
+    <select id="getCommissionRate" resultType="java.math.BigDecimal">
+        select commission_rate from commission_rate_info where id = 1
+    </select>
+
+    <update id="setFinalBonus">
+        update employee_year_end_bonus_info
+        set amount = #{finalBonus}
+        where id = #{employeeId}
+    </update>
+
+    <select id="getFinalBonus" resultType="java.math.BigDecimal">
+        select amount
+        from employee_year_end_bonus_info
+        where id = #{employeeId}
+    </select>
+
+    <select id="computeSalarySum" resultType="java.math.BigDecimal">
+        select ifNull(sum(expected_salary),0)
+        from salary_sheet
+        where  #{beginDate} &lt;= create_time and create_time &lt;= #{endDate} and state = '审批完成' and employee_id = #{employeeId}
+    </select>
+</mapper>

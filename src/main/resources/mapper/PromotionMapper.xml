@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nju.edu.erp.dao.PromotionDao">
+    <insert id="savePromotion" parameterType="com.nju.edu.erp.model.po.promotion.PromotionPO">
+        insert into promotion(id, begin_time, end_time, customer_level, total_amount, discount, voucher)
+        values(#{id},#{beginTime},#{endTime},#{customerLevel},#{totalAmount},#{discount},#{voucher})
+    </insert>
+
+    <insert id="savePackages" parameterType="com.nju.edu.erp.model.po.promotion.PromotionPackagePO">
+        insert into promotion_package(promotion_id, product_id, quantity) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.promotionId},#{item.productId},#{item.quantity})
+        </foreach>
+    </insert>
+
+    <insert id="saveGifts" parameterType="com.nju.edu.erp.model.po.promotion.PromotionPackagePO">
+        insert into promotion_gift(promotion_id, product_id, quantity) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.promotionId}, #{item.productId}, #{item.quantity})
+        </foreach>
+    </insert>
+
+    <select id="getLatest" resultType="com.nju.edu.erp.model.po.promotion.PromotionPO">
+        select * from promotion order by id desc limit 0,1 ;
+    </select>
+
+    <select id="getAllPromotion" resultType="com.nju.edu.erp.model.po.promotion.PromotionPO">
+        select * from promotion order by id desc
+    </select>
+
+    <select id="getPromotionById" resultType="com.nju.edu.erp.model.po.promotion.PromotionPO">
+        select * from promotion where id = #{promotionId}
+    </select>
+
+    <select id="getPackagesByPromotionId" resultType="com.nju.edu.erp.model.po.promotion.PromotionPackagePO">
+        select * from promotion_package where promotion_id = #{promotionId}
+    </select>
+
+    <select id="getGiftsByPromotionId" resultType="com.nju.edu.erp.model.po.promotion.PromotionPackagePO">
+        select * from promotion_gift where promotion_id = #{promotionId}
+    </select>
+
+</mapper>
