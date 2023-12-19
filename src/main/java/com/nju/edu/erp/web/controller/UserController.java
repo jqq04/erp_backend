@@ -2,6 +2,7 @@ package com.nju.edu.erp.web.controller;
 
 import com.nju.edu.erp.config.JwtConfig;
 import com.nju.edu.erp.dao.UserDao;
+import com.nju.edu.erp.exception.MyServiceException;
 import com.nju.edu.erp.model.vo.UserVO;
 import com.nju.edu.erp.service.UserService;
 import com.nju.edu.erp.web.Response;
@@ -28,7 +29,11 @@ public class UserController {
 
     @PostMapping("/login")
     public Response userLogin(@RequestBody UserVO userVO) {
-        return Response.buildSuccess(userService.login(userVO));
+        try {
+            return Response.buildSuccess(userService.login(userVO));
+        } catch (MyServiceException e) {
+            return  Response.buildFailed(e.getCode(), e.getMessage());
+        }
     }
 
     @PostMapping("/register")
