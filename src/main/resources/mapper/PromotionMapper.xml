@@ -40,4 +40,10 @@
         select * from promotion_gift where promotion_id = #{promotionId}
     </select>
 
+    <select id="deletePromotion">
+        delete from promotion_package where promotion_id = #{promotionId};
+        delete from promotion_gift where promotion_id = #{promotionId};
+        delete from promotion where id = #{promotionId}
+    </select>
+
 </mapper>

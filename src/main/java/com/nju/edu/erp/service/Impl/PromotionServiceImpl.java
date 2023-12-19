@@ -194,4 +194,16 @@ public class PromotionServiceImpl implements PromotionService {
                 res.add(promotionVO);
         return res;
     }
+
+    @Override
+    @Transactional
+    public void deletePromotion(String promotionId){
+        PromotionPO promotionPO = promotionDao.getPromotionById(promotionId);
+        if (promotionPO == null)
+            throw new MyServiceException("Z0005","促销不存在");
+
+        int ans = promotionDao.deletePromotion(promotionId);
+        if (ans == 0)
+            throw new MyServiceException("Z0006","删除失败");
+    }
 }
