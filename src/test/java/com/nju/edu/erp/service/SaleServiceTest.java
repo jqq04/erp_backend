@@ -187,7 +187,7 @@ public class SaleServiceTest { // 该测试为集成测试，需要用到数据�
         Assertions.assertEquals(0, productDao.findById("0000000000400000").getRecentRp().compareTo(BigDecimal.valueOf(2800.00)));
         Assertions.assertEquals(0, productDao.findById("0000000000400001").getRecentRp().compareTo(BigDecimal.valueOf(3800.00)));
 
-//        Assertions.assertEquals(0, customerDao.findOneById(2).getReceivable().compareTo(BigDecimal.valueOf(4959100.00)));
+        Assertions.assertEquals(0, customerDao.findOneById(2).getReceivable().compareTo(BigDecimal.valueOf(4959100.00)));
         List<WarehouseOutputSheetPO> draftSheets = warehouseOutputSheetDao.getDraftSheets(WarehouseOutputSheetState.DRAFT);
         Assertions.assertNotNull(draftSheets);
         Assertions.assertEquals(1, draftSheets.size());
